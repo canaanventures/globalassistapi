@@ -1,0 +1,23 @@
+{
+   "type": "mssql",
+   "host": "103.146.177.220",
+   "username": "sa",
+   "password": "Teamwork@2021",
+   "database": "GlobalAssistAdmin",
+   "synchronize": true,
+   "logging": false,
+   "entities": [
+      "src/entity/**/*.ts"
+   ],
+   "migrations": [
+      "src/migration/**/*.ts"
+   ],
+   "subscribers": [
+      "src/subscriber/**/*.ts"
+   ],
+   "cli": {
+      "entitiesDir": "src/entity",
+      "migrationsDir": "src/migration",
+      "subscribersDir": "src/subscriber"
+   }
+}

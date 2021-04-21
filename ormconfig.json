@@ -4,7 +4,7 @@
    "username": "sa",
    "password": "Teamwork@2021",
    "database": "GlobalAssistAdmin",
-   "synchronize": true,
+   "synchronize": false,
    "logging": false,
    "entities": [
       "src/entity/**/*.ts"

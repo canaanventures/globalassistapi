@@ -12,8 +12,23 @@ export class UserMapping {
   @Column("int", { name: "OrgId" })
   orgId: number;
 
-  @Column("int", { name: "ApproverId", nullable: true })
-  approverId: number | null;
+  @Column("varchar", { name: "Address", nullable: true, length: 150 })
+  address: string | null;
+
+  @Column("varchar", { name: "State", nullable: true, length: 50 })
+  state: string | null;
+
+  @Column("varchar", { name: "Country", nullable: true, length: 50 })
+  country: string | null;
+
+  @Column("varchar", { name: "Pincode", nullable: true, length: 10 })
+  pincode: string | null;
+
+  @Column("int", { name: "CoordinatorId", nullable: true })
+  coordinatorId: number | null;
+
+  @Column("int", { name: "SupervisorId", nullable: true })
+  supervisorId: number | null;
 
   @Column("int", { name: "UpdatedBy", nullable: true })
   updatedBy: number | null;

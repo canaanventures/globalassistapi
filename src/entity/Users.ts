@@ -1,10 +1,14 @@
 import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import * as bcrypt from "bcryptjs";
 
 @Index("PK__Users__3214EC071EF23413", ["id"], { unique: true })
 @Entity("Users", { schema: "dbo" })
 export class Users {
   @PrimaryGeneratedColumn({ type: "int", name: "Id" })
   id: number;
+
+  @Column("varchar", { name: "Salutations", length: 10 })
+  salutations: string;
 
   @Column("varchar", { name: "FirstName", length: 50 })
   firstName: string;
@@ -32,4 +36,13 @@ export class Users {
 
   @Column("date", { name: "CreatedOn", nullable: true })
   createdOn: Date | null;
+
+  hashPassword() {
+    this.password = bcrypt.hashSync(this.password, 8);
+  }
+
+  checkIfUnencryptedPasswordIsValid(unencryptedPassword: string) {
+    return bcrypt.compareSync(unencryptedPassword, this.password);
+  }
+
 }

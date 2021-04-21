@@ -1,9 +1,11 @@
 import { Router } from "express";
 import AuthController from "../controllers/AuthController";
-import { checkJwt } from "../middlewares/checkJwt";
 
 const router = Router();
 //Login route
-router.get("/login", AuthController.login);
+router.get("/login", AuthController.Login);
+router.post("/forgotpassword", AuthController.ForgotPassword);
+router.post("/resetpassword", AuthController.ResetPassword);
+router.post("/changepassword", AuthController.ChangePassword);
 
 export default router;

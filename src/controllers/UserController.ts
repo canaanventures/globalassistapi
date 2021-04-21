@@ -1,54 +1,16 @@
 import { Request, Response } from "express";
 import { getRepository, getConnection } from "typeorm";
-import config from "../config/config";
 import Output from "../_models/output";
 import { UserMapping, Users } from "../entity";
 
 class UserController {
-  static GetAllUsers = async (req: Request, res: Response) => {
+  static GetUsersByFilter = async (req: Request, res: Response) => {
     let _output = new Output();
     try {
-      if (req.query.RoleId && req.query.RoleId !== "0") {
-        _output.data = await getConnection().createQueryBuilder('Users', 'u')
-          .addSelect('u.Id', 'Id').addSelect('u.FirstName', 'FirstName').addSelect('u.LastName', 'LastName')
-          .addSelect('u.EmailId', 'EmailId').addSelect('u.PhoneNo', 'PhoneNo').addSelect('u.isActive', 'isActive')
-          .addSelect('ap.FirstName', 'ApproverFirst').addSelect('ap.LastName', 'ApproverLast').addSelect('ap.Id', 'ApproverId')
-          .addSelect('um.OrgId', 'OrgId').addSelect('rl.Rolename', 'Role').addSelect('u.RoleId', 'RoleId')
-          .leftJoin('UserMapping', 'um', 'u.Id = um.UserId').leftJoin('Users', 'ap', 'ap.Id = um.ApproverId')
-          .leftJoin('Roles', 'rl', 'u.RoleId = rl.Id').where('u.RoleId = ' + req.query.RoleId).getRawMany();
-      }
-      else {
-        _output.data = await getConnection().createQueryBuilder('Users', 'u')
-          .addSelect('u.Id', 'Id').addSelect('u.FirstName', 'FirstName').addSelect('u.LastName', 'LastName')
-          .addSelect('u.EmailId', 'EmailId').addSelect('u.PhoneNo', 'PhoneNo').addSelect('u.isActive', 'isActive')
-          .addSelect('ap.FirstName', 'ApproverFirst').addSelect('ap.LastName', 'ApproverLast').addSelect('ap.Id', 'ApproverId')
-          .addSelect('um.OrgId', 'OrgId').addSelect('rl.Rolename', 'Role').addSelect('u.RoleId', 'RoleId')
-          .leftJoin('UserMapping', 'um', 'u.Id = um.UserId').leftJoin('Users', 'ap', 'ap.Id = um.ApproverId')
-          .leftJoin('Roles', 'rl', 'u.RoleId = rl.Id').getRawMany();
-      }
+      let Query = `execute GetUserDetails ${req.query.OperationId}, ${req.query.RoleId ? req.query.RoleId : 'null'}, ${req.query.OrgId ? req.query.OrgId : 'null'}, ${req.query.SupervisorId ? req.query.SupervisorId : 'null'}, ${req.query.CoordinatorId ? req.query.CoordinatorId : 'null'}, ${req.query.userId ? req.query.userId : 'null'}`;
+      _output.data = await getConnection().query(Query);
       _output.isSuccess = true;
-      _output.message = 'Get All Users';
-    }
-    catch (ex) {
-      _output.isSuccess = false;
-      _output.data = {};
-      _output.message = 'Get failed';
-    }
-    res.send(_output);
-  };
-
-  static GetUserByOrgId = async (req: Request, res: Response) => {
-    let _output = new Output();
-    try {
-      _output.data = await getConnection().createQueryBuilder('Users', 'u')
-        .addSelect('u.Id', 'Id').addSelect('u.FirstName', 'FirstName').addSelect('u.LastName', 'LastName')
-        .addSelect('u.EmailId', 'EmailId').addSelect('u.PhoneNo', 'PhoneNo').addSelect('u.isActive', 'isActive')
-        .addSelect('ap.FirstName', 'ApproverFirst').addSelect('ap.LastName', 'ApproverLast').addSelect('ap.Id', 'ApproverId')
-        .addSelect('um.OrgId', 'OrgId').addSelect('rl.Rolename', 'Role').addSelect('u.RoleId', 'RoleId')
-        .leftJoin('UserMapping', 'um', 'u.Id = um.UserId').leftJoin('Users', 'ap', 'ap.Id = um.ApproverId')
-        .leftJoin('Roles', 'rl', 'u.RoleId = rl.Id').where('um.OrgId =' + req.query.OrgId).getRawMany();
-      _output.isSuccess = true;
-      _output.message = 'Get All Users';
+      _output.message = 'Get Users success';
     }
     catch (ex) {
       _output.isSuccess = false;
@@ -61,7 +23,7 @@ class UserController {
   static CreateUsers = async (req: Request, res: Response) => {
     let _output = new Output();
     try {
-      let { id, salutations, firstName, lastName, roleId, emailId, phoneNo, isActive, password, address, state, country, pincode } = req.body;
+      let { id, salutations, firstName, lastName, roleId, emailId, phoneNo, isActive, password, address, state, country, pincode, userId } = req.body;
       const userRepository = await getRepository(Users);
       const userMappingRepository = await getRepository(UserMapping);
       let users: Users;
@@ -91,12 +53,13 @@ class UserController {
       if (roleId !== 1) {
         // Add to user mappping table
         userMapping.userId = users.id;
-        userMapping.orgId = req.body.OrgId;
+        userMapping.orgId = req.body.orgId;
         userMapping.address = address;
         userMapping.state = state;
         userMapping.country = country;
         userMapping.pincode = pincode;
         userMapping.coordinatorId = req.body.coordinatorId;
+        userMapping.updatedBy = userId;
         userMapping.updatedOn = new Date();
         if (roleId === 5)
           userMapping.supervisorId = req.body.supervisorId;

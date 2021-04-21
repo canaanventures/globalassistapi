@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
-import { getRepository, getConnection } from "typeorm";
-import config from "../config/config";
+import { getRepository } from "typeorm";
 import Output from "../_models/output";
-import { Organization, UserMapping, Users } from "../entity";
+import { Organization } from "../entity";
 
 class OrgController {
   static GetAllOrganization = async (req: Request, res: Response) => {

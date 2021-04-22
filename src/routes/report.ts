@@ -2,7 +2,8 @@ import { Router } from "express";
 import ReportController from "../controllers/ReportContoller";
 
 const router = Router();
-//Get all Organization route
-router.get("/getallorg", ReportController.GetAllOrganization);
+router.post("/submitreport", ReportController.CreateApplication);
+
+router.get("/getreports", ReportController.GetReports);
 
 export default router;

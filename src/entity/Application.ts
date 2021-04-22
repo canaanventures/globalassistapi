@@ -60,8 +60,17 @@ export class Application {
   @Column("varchar", { name: "isVideoShared", nullable: true, length: 20 })
   isVideoShared: string | null;
 
-  @Column("varchar", { name: "ApprovalStatus", nullable: true, length: 20 })
-  approvalStatus: string | null;
+  @Column("bit", { name: "SupervisorApproval", nullable: true })
+  supervisorApproval: boolean | null;
+
+  @Column("varchar", { name: "SupervisorRemarks", nullable: true, length: 200 })
+  supervisorRemarks: string | null;
+
+  @Column("bit", { name: "CoordinatorApproval", nullable: true })
+  coordinatorApproval: boolean | null;
+
+  @Column("varchar", { name: "CoordinatorRemarks", nullable: true, length: 200 })
+  coordinatorRemarks: string | null;
 
   @Column("varchar", { name: "AppMonth", length: 50 })
   appMonth: string;

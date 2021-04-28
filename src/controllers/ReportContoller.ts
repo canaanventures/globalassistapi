@@ -6,42 +6,45 @@ import { Application } from "../entity";
 class ReportController {
     static CreateApplication = async (req: Request, res: Response) => {
         let _output = new Output();
-        let { id, noOfVillages, noOfPersonHeard, noOfMen, noOfWomen, noOfChildren, noOfNewGroup, noOfLevel1Leader,
-            noOfLevel2Leader, noOfLevel3Leader, noOfVolunteers, noOfSocialProjects, noOfBeneficiaries, isGoodPoints,
-            goodPoints, isConcernReport, concernPoints, isPhotoShared, isVideoShared, userId, appMonth } = req.body;
+        let { Id, NoOfVillages, NoOfPersonHeard, NoOfMen, NoOfWomen, NoOfChildren, NoOfNewGroup, NoOfLevel1Leader,
+            NoOfLevel2Leader, NoOfLevel3Leader, NoOfVolunteers, NoOfSocialProjects, NoOfBeneficiaries, isGoodPoints,
+            GoodPoints, isConcernReport, ConcernPoints, isPhotoShared, isVideoShared, UserId, AppMonth, SupervisorRemarks, CoordinatorRemarks } = req.body;
         const appRepository = await getRepository(Application);
         let application: Application;
         try {
-            if (id == 0) {
+            if (Id == 0) {
                 application = new Application();
                 application.postedOn = new Date();
-                application.postedBy = userId;
+                application.postedBy = UserId;
             }
-            else
-                application = await appRepository.findOne({ where: { id: id } });
+            else {
+                application = await appRepository.findOne({ where: { id: Id } });
+                application.supervisorRemarks = SupervisorRemarks;
+                application.coordinatorRemarks = CoordinatorRemarks;
+            }
 
-            application.noOfVillages = noOfVillages;
-            application.noOfPersonHeard = noOfPersonHeard;
-            application.noOfMen = noOfMen;
-            application.noOfWomen = noOfWomen;
-            application.noOfChildren = noOfChildren;
-            application.noOfNewGroup = noOfNewGroup;
-            application.noOfLevel1Leader = noOfLevel1Leader;
-            application.noOfLevel2Leader = noOfLevel2Leader;
-            application.noOfLevel3Leader = noOfLevel3Leader;
-            application.noOfVolunteers = noOfVolunteers;
-            application.noOfSocialProjects = noOfSocialProjects;
-            application.noOfBeneficiaries = noOfBeneficiaries;
+            application.noOfVillages = NoOfVillages;
+            application.noOfPersonHeard = NoOfPersonHeard;
+            application.noOfMen = NoOfMen;
+            application.noOfWomen = NoOfWomen;
+            application.noOfChildren = NoOfChildren;
+            application.noOfNewGroup = NoOfNewGroup;
+            application.noOfLevel1Leader = NoOfLevel1Leader;
+            application.noOfLevel2Leader = NoOfLevel2Leader;
+            application.noOfLevel3Leader = NoOfLevel3Leader;
+            application.noOfVolunteers = NoOfVolunteers;
+            application.noOfSocialProjects = NoOfSocialProjects;
+            application.noOfBeneficiaries = NoOfBeneficiaries;
             application.isGoodPoints = isGoodPoints;
-            application.goodPoints = goodPoints;
+            application.goodPoints = GoodPoints;
             application.isConcernReport = isConcernReport;
-            application.concernPoints = concernPoints;
+            application.concernPoints = ConcernPoints;
             application.isPhotoShared = isPhotoShared;
             application.isVideoShared = isVideoShared;
-            application.appMonth = appMonth;
+            application.appMonth = AppMonth;
             application.supervisorApproval = false;
             application.coordinatorApproval = false;
-            application.updatedBy = userId;
+            application.updatedBy = UserId;
             application.updatedOn = new Date();
 
             await appRepository.save(application);

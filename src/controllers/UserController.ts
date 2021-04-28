@@ -23,57 +23,57 @@ class UserController {
   static CreateUsers = async (req: Request, res: Response) => {
     let _output = new Output();
     try {
-      let { id, salutations, firstName, lastName, roleId, emailId, phoneNo, isActive, password, address, state, country, pincode, userId } = req.body;
+      let { Id, Salutations, FirstName, LastName, RoleId, EmailId, PhoneNo, isActive, Password, Address, State, Country, Pincode, UserId } = req.body;
       const userRepository = await getRepository(Users);
       const userMappingRepository = await getRepository(UserMapping);
       let users: Users;
       let userMapping: UserMapping;
 
-      if (id !== 0) {
-        users = await userRepository.findOne({ id: id });
-        userMapping = await userMappingRepository.findOne({ userId: id });
+      if (Id !== 0) {
+        users = await userRepository.findOne({ id: Id });
+        userMapping = await userMappingRepository.findOne({ userId: Id });
       }
       else {
         users = new Users();
         userMapping = new UserMapping();
+        users.password = Password;
       }
 
-      users.salutations = salutations;
-      users.firstName = firstName;
-      users.lastName = lastName;
-      users.roleId = roleId;
-      users.emailId = emailId;
-      users.phoneNo = phoneNo;
+      users.salutations = Salutations;
+      users.firstName = FirstName;
+      users.lastName = LastName;
+      users.roleId = RoleId;
+      users.emailId = EmailId;
+      users.phoneNo = PhoneNo;
       users.isActive = isActive;
-      users.password = password;
       users.createdOn = new Date();
       users.hashPassword();
       await userRepository.save(users);
 
-      if (roleId !== 1) {
+      if (RoleId !== 1) {
         // Add to user mappping table
         userMapping.userId = users.id;
         userMapping.orgId = req.body.orgId;
-        userMapping.address = address;
-        userMapping.state = state;
-        userMapping.country = country;
-        userMapping.pincode = pincode;
-        userMapping.coordinatorId = req.body.coordinatorId;
-        userMapping.updatedBy = userId;
+        userMapping.address = Address;
+        userMapping.state = State;
+        userMapping.country = Country;
+        userMapping.pincode = Pincode;
+        userMapping.coordinatorId = req.body.CoordinatorId;
+        userMapping.updatedBy = UserId;
         userMapping.updatedOn = new Date();
-        if (roleId === 5)
-          userMapping.supervisorId = req.body.supervisorId;
+        if (RoleId === 5)
+          userMapping.supervisorId = req.body.SupervisorId;
 
         await userMappingRepository.save(userMapping);
       }
-      _output.data = {};
+      _output.data = await getConnection().query(`execute GetUserDetails 5,null,null,null,null,${Id}`);
       _output.isSuccess = true;
-      _output.message = id == 0 ? 'User created successfully' : 'Updated successfully';
+      _output.message = Id == 0 ? 'User created successfully' : 'Updated successfully';
     }
     catch (ex) {
       _output.isSuccess = false;
       _output.data = ex;
-      _output.message = req.body.id == 0 ? 'User creation failed' : 'Update failed';
+      _output.message = req.body.Id == 0 ? 'User creation failed' : 'Update failed';
     }
     res.send(_output);
   };

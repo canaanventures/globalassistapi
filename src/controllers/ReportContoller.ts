@@ -78,21 +78,24 @@ class ReportController {
 
     static ApproveReports = async (req: Request, res: Response) => {
         let _output = new Output();
-        let { RoleId, ReportId, isApproved, Remarks } = req.body;
+        let { RoleId, ReportId, isApproved, Remarks, userId } = req.body;
         const appRepository = await getRepository(Application);
         let application = await appRepository.findOne({ where: { id: ReportId } });
         try {
+            let Query = ``;
             if (RoleId == 3) {
                 application.coordinatorApproval = isApproved;
                 application.coordinatorRemarks = Remarks;
+                Query = `execute GetReportsDetails 5, null, null,${userId}, null, null, null`;
             }
             else if (RoleId == 4) {
                 application.supervisorApproval = isApproved;
                 application.supervisorRemarks = Remarks;
+                Query = `execute GetReportsDetails 6, null, null,null, ${userId}, null, null`;
             }
 
             await appRepository.save(application);
-            _output.data = {}
+            _output.data = await getConnection().query(Query);
             _output.isSuccess = true;
             _output.message = isApproved ? 'Request as been approved' : 'Request has been rejected';
         }

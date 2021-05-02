@@ -7,7 +7,7 @@ import * as cors from "cors";
 import routes from "./routes";
 
 let CROS_OPTIONS = {
-  origin: ["http://localhost:4200", "http://jobs.leaderimpact.co.in"],
+  origin: ["http://localhost:4200", "http://globalassistadmin.padahjobs.com", "https://globalassistadmin.padahjobs.com"],
   allowedHeaders: [
     "Content-Type",
     "Access-Control-Allow-Origin",

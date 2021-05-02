@@ -77,5 +77,21 @@ class UserController {
     }
     res.send(_output);
   };
+
+  static WelcomeInfo = async (req: Request, res: Response) => {
+    let _output = new Output();
+    try {
+      _output.isSuccess = true;
+      _output.data = "Welcome to Global Assit Admin - API";
+      _output.message = 'Welcome to Global Assit Admin - API';
+      res.send(_output);
+    }
+    catch (e) {
+      _output.isSuccess = false;
+      _output.data = e.toString();
+      _output.message = 'Failed to run the Server';
+      res.send(_output);
+    }
+  }
 }
 export default UserController;

@@ -72,6 +72,15 @@ export class Application {
   @Column("varchar", { name: "CoordinatorRemarks", nullable: true, length: 200 })
   coordinatorRemarks: string | null;
 
+  @Column("bit", { name: "SponserApproval", nullable: true })
+  sponserApproval: boolean | null;
+
+  @Column("varchar", { name: "SponserRemarks", nullable: true, length: 200 })
+  sponserRemarks: string | null;
+
+  @Column("varchar", { name: "OverallStatus", nullable: true, length: 20 })
+  overallStatus: string | null;
+
   @Column("varchar", { name: "AppMonth", length: 50 })
   appMonth: string;
 

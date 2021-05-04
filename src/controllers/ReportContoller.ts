@@ -8,7 +8,7 @@ class ReportController {
         let _output = new Output();
         let { Id, NoOfVillages, NoOfPersonHeard, NoOfMen, NoOfWomen, NoOfChildren, NoOfNewGroup, NoOfLevel1Leader,
             NoOfLevel2Leader, NoOfLevel3Leader, NoOfVolunteers, NoOfSocialProjects, NoOfBeneficiaries, isGoodPoints,
-            GoodPoints, isConcernReport, ConcernPoints, isPhotoShared, isVideoShared, UserId, AppMonth, SupervisorRemarks, CoordinatorRemarks } = req.body;
+            GoodPoints, isConcernReport, ConcernPoints, isPhotoShared, isVideoShared, UserId, AppMonth, SupervisorRemarks, CoordinatorRemarks, SponserRemarks } = req.body;
         const appRepository = await getRepository(Application);
         let application: Application;
         try {
@@ -21,6 +21,7 @@ class ReportController {
                 application = await appRepository.findOne({ where: { id: Id } });
                 application.supervisorRemarks = SupervisorRemarks;
                 application.coordinatorRemarks = CoordinatorRemarks;
+                application.sponserRemarks = SponserRemarks;
             }
 
             application.noOfVillages = NoOfVillages;
@@ -83,14 +84,27 @@ class ReportController {
         let application = await appRepository.findOne({ where: { id: ReportId } });
         try {
             let Query = ``;
-            if (RoleId == 3) {
+            if (RoleId == 2) {
+                application.sponserApproval = isApproved;
+                application.sponserRemarks = Remarks;
+                if (!isApproved)
+                    application.overallStatus = 'Rejected';
+                else
+                    application.overallStatus = 'Approved';
+                Query = `execute GetReportsDetails 5, null, null,${userId}, null, null, null`;
+            }
+            else if (RoleId == 3) {
                 application.coordinatorApproval = isApproved;
                 application.coordinatorRemarks = Remarks;
+                if (!isApproved)
+                    application.overallStatus = 'Rejected';
                 Query = `execute GetReportsDetails 5, null, null,${userId}, null, null, null`;
             }
             else if (RoleId == 4) {
                 application.supervisorApproval = isApproved;
                 application.supervisorRemarks = Remarks;
+                if (!isApproved)
+                    application.overallStatus = 'Rejected';
                 Query = `execute GetReportsDetails 6, null, null,null, ${userId}, null, null`;
             }
 

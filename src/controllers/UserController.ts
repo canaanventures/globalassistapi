@@ -24,6 +24,8 @@ class UserController {
     let _output = new Output();
     try {
       let { Id, Salutations, FirstName, LastName, RoleId, EmailId, PhoneNo, isActive, Password, Address, State, Country, Pincode, UserId } = req.body;
+      if (Password == undefined || Password == null)
+        Password = Math.random().toString(36).substring(7);
       const userRepository = await getRepository(Users);
       const userMappingRepository = await getRepository(UserMapping);
       let users: Users;
@@ -50,7 +52,7 @@ class UserController {
       users.hashPassword();
       await userRepository.save(users);
 
-      if (RoleId !== 1) {
+      if (RoleId > 2) {
         // Add to user mappping table
         userMapping.userId = users.id;
         userMapping.orgId = req.body.orgId;

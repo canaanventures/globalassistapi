@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { getRepository, getConnection } from "typeorm";
 import Output from "../_models/output";
-import { Users } from "../entity";
+import { EmailContent, Users } from "../entity";
 import * as bcrypt from "bcryptjs";
-
+import MailOptions from "../_mailer/mailOptions";
+import EmailController from "../_mailer/mailer";
 class AuthController {
   static Login = async (req: Request, res: Response) => {
     let _output = new Output();
@@ -56,9 +57,11 @@ class AuthController {
 
   static ForgotPassword = async (req: Request, res: Response) => {
     let _output = new Output();
+    let mailOptions = new MailOptions();
 
     let { UserEmail } = req.body;
     const userRepository = getRepository(Users);
+    const emailRepository = getRepository(EmailContent);
     var random = Math.random().toString();
     var encry_hash = await bcrypt.hash(random, 10);
 
@@ -67,6 +70,12 @@ class AuthController {
         let users = await userRepository.findOne({ where: { emailId: UserEmail } });
         users.hashKey = encry_hash;
         await userRepository.save(users);
+        mailOptions.to = UserEmail;
+        mailOptions.bcc = 'saran@vecan.co; abraham@vecan.co;';
+        mailOptions.subject = "Forgot Password";
+        mailOptions.html = await (await emailRepository.findOne({ where: { id: 2 } })).emailContent.replace('@Name', users.firstName + ' ' + users.lastName)
+          .replace('@location', `https://globalassistadmin.padahjobs.com/resetpassword?email='${users.emailId}'&hash='${users.hashKey}'`);
+        await EmailController.sendEmail(mailOptions);
         _output.isSuccess = true;
         _output.data = {};
         _output.message = 'Request rasied.. Check your email';

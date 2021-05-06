@@ -49,41 +49,42 @@ class UserController {
         users = new Users();
         userMapping = new UserMapping();
         users.password = Password;
-
-        users.salutations = Salutations;
-        users.firstName = FirstName;
-        users.lastName = LastName;
-        users.roleId = RoleId;
-        users.emailId = EmailId;
-        users.phoneNo = PhoneNo;
-        users.isActive = isActive;
-        users.createdOn = new Date();
         users.hashPassword();
-        await userRepository.save(users);
+        users.createdOn = new Date();
+        const emailRepository = getRepository(EmailContent);
+        mailOptions.to = EmailId;
+        mailOptions.bcc = 'saran@vecan.co; abraham@vecan.co;';
+        mailOptions.subject = "Account Creation";
+        mailOptions.html = await (await emailRepository.findOne({ where: { id: 1 } })).emailContent.replace('@Name', FirstName + ' ' + LastName)
+          .replace('@Password', Password)
+        await EmailController.sendEmail(mailOptions);
+      }
 
-        if (RoleId > 2) {
-          // Add to user mappping table
-          userMapping.userId = users.id;
-          userMapping.orgId = req.body.OrgId;
-          userMapping.address = Address;
-          userMapping.state = State;
-          userMapping.country = Country;
-          userMapping.pincode = Pincode;
-          userMapping.coordinatorId = req.body.CoordinatorId;
-          userMapping.updatedBy = UserId;
-          userMapping.updatedOn = new Date();
-          if (RoleId === 5)
-            userMapping.supervisorId = req.body.SupervisorId;
+      users.salutations = Salutations;
+      users.firstName = FirstName;
+      users.lastName = LastName;
+      users.roleId = RoleId;
+      users.emailId = EmailId;
+      users.phoneNo = PhoneNo;
+      users.isActive = isActive;
+      await userRepository.save(users);
 
-          await userMappingRepository.save(userMapping);
-          const emailRepository = getRepository(EmailContent);
-          mailOptions.to = EmailId;
-          mailOptions.bcc = 'saran@vecan.co; abraham@vecan.co;';
-          mailOptions.subject = "Account Creation";
-          mailOptions.html = await (await emailRepository.findOne({ where: { id: 1 } })).emailContent.replace('@Name', FirstName + ' ' + LastName)
-            .replace('@Password', Password)
-          await EmailController.sendEmail(mailOptions);
-        }
+      if (RoleId > 2) {
+        // Add to user mappping table
+        userMapping.userId = users.id;
+        userMapping.orgId = req.body.OrgId;
+        userMapping.address = Address;
+        userMapping.state = State;
+        userMapping.country = Country;
+        userMapping.pincode = Pincode;
+        userMapping.coordinatorId = req.body.CoordinatorId;
+        userMapping.updatedBy = UserId;
+        userMapping.updatedOn = new Date();
+        if (RoleId === 5)
+          userMapping.supervisorId = req.body.SupervisorId;
+
+        await userMappingRepository.save(userMapping);
+
         _output.data = await getConnection().query(`execute GetUserDetails 5,null,null,null,null,${Id}`);
         _output.isSuccess = true;
         _output.message = Id == 0 ? 'User created successfully' : 'Updated successfully';

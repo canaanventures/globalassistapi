@@ -129,10 +129,8 @@ class AuthController {
 
   static ChangePassword = async (req: Request, res: Response) => {
     let _output = new Output();
-
-    const id = req.body.UserId;
-    const { oldPassword, newPassword } = req.body;
-    if (!(oldPassword && newPassword)) {
+    const { CurrentPassword, NewPassword, ConfirmPassword, UserId } = req.body;
+    if (!(CurrentPassword && NewPassword && ConfirmPassword)) {
       _output.isSuccess = false;
       _output.data = {};
       _output.message = 'Password reset failed';
@@ -143,9 +141,9 @@ class AuthController {
     const userRepository = getRepository(Users);
     let user: Users;
     try {
-      user = await userRepository.findOneOrFail(id);
+      user = await userRepository.findOne({ where: { id: UserId } });
       //Check if old password matchs
-      if (!user.checkIfUnencryptedPasswordIsValid(oldPassword)) {
+      if (!user.checkIfUnencryptedPasswordIsValid(CurrentPassword)) {
         _output.isSuccess = false;
         _output.data = {};
         _output.message = 'Current password is incorrect';
@@ -153,7 +151,7 @@ class AuthController {
         return;
       }
 
-      user.password = newPassword;
+      user.password = NewPassword;
       user.hashPassword();
       await userRepository.save(user);
 
@@ -161,15 +159,13 @@ class AuthController {
       _output.data = {};
       _output.message = 'Password changed successfully';
       res.send(_output)
-    } catch (id) {
+    } catch (ex) {
       _output.isSuccess = false;
       _output.data = {};
       _output.message = 'Password reset failed';
       res.send(_output)
       return;
     }
-
-
   };
 }
 export default AuthController;

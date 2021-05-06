@@ -44,7 +44,7 @@ class OrgController {
       organization.state = state;
       organization.city = city;
       organization.country = country;
-      organization.isActive = isActive;
+      organization.isActive = isActive == "true" ? true : false;
       organization.createdBy = userId;
       organization.createdOn = new Date();
 

@@ -80,7 +80,7 @@ class UserController {
           mailOptions.to = EmailId;
           mailOptions.bcc = 'saran@vecan.co; abraham@vecan.co;';
           mailOptions.subject = "Account Creation";
-          mailOptions.html = await (await emailRepository.findOne({ where: { Id: 6 } })).emailContent.replace('@Name', FirstName + ' ' + LastName)
+          mailOptions.html = await (await emailRepository.findOne({ where: { id: 1 } })).emailContent.replace('@Name', FirstName + ' ' + LastName)
             .replace('@Password', Password)
           await EmailController.sendEmail(mailOptions);
         }

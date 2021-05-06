@@ -1,7 +1,9 @@
 import { Request, Response } from "express";
 import { getRepository, getConnection } from "typeorm";
 import Output from "../_models/output";
-import { UserMapping, Users } from "../entity";
+import { EmailContent, UserMapping, Users } from "../entity";
+import MailOptions from "../_mailer/mailOptions";
+import EmailController from "../_mailer/mailer";
 
 class UserController {
   static GetUsersByFilter = async (req: Request, res: Response) => {
@@ -22,6 +24,7 @@ class UserController {
 
   static CreateUsers = async (req: Request, res: Response) => {
     let _output = new Output();
+    let mailOptions = new MailOptions();
     try {
       let { Id, Salutations, FirstName, LastName, RoleId, EmailId, PhoneNo, isActive, Password, Address, State, Country, Pincode, UserId } = req.body;
       if (Password == undefined || Password == null)
@@ -35,42 +38,56 @@ class UserController {
         users = await userRepository.findOne({ id: Id });
         userMapping = await userMappingRepository.findOne({ userId: Id });
       }
+      else if (await userRepository.count({ where: { emailId: EmailId } }) > 0) {
+        _output.data = {};
+        _output.isSuccess = false;
+        _output.message = 'Email Id already exists';
+        res.send(_output);
+        return
+      }
       else {
         users = new Users();
         userMapping = new UserMapping();
         users.password = Password;
+
+        users.salutations = Salutations;
+        users.firstName = FirstName;
+        users.lastName = LastName;
+        users.roleId = RoleId;
+        users.emailId = EmailId;
+        users.phoneNo = PhoneNo;
+        users.isActive = isActive;
+        users.createdOn = new Date();
+        users.hashPassword();
+        await userRepository.save(users);
+
+        if (RoleId > 2) {
+          // Add to user mappping table
+          userMapping.userId = users.id;
+          userMapping.orgId = req.body.OrgId;
+          userMapping.address = Address;
+          userMapping.state = State;
+          userMapping.country = Country;
+          userMapping.pincode = Pincode;
+          userMapping.coordinatorId = req.body.CoordinatorId;
+          userMapping.updatedBy = UserId;
+          userMapping.updatedOn = new Date();
+          if (RoleId === 5)
+            userMapping.supervisorId = req.body.SupervisorId;
+
+          await userMappingRepository.save(userMapping);
+          const emailRepository = getRepository(EmailContent);
+          mailOptions.to = EmailId;
+          mailOptions.bcc = 'saran@vecan.co; abraham@vecan.co;';
+          mailOptions.subject = "Account Creation";
+          mailOptions.html = await (await emailRepository.findOne({ where: { Id: 6 } })).emailContent.replace('@Name', FirstName + ' ' + LastName)
+            .replace('@Password', Password)
+          await EmailController.sendEmail(mailOptions);
+        }
+        _output.data = await getConnection().query(`execute GetUserDetails 5,null,null,null,null,${Id}`);
+        _output.isSuccess = true;
+        _output.message = Id == 0 ? 'User created successfully' : 'Updated successfully';
       }
-
-      users.salutations = Salutations;
-      users.firstName = FirstName;
-      users.lastName = LastName;
-      users.roleId = RoleId;
-      users.emailId = EmailId;
-      users.phoneNo = PhoneNo;
-      users.isActive = isActive;
-      users.createdOn = new Date();
-      users.hashPassword();
-      await userRepository.save(users);
-
-      if (RoleId > 2) {
-        // Add to user mappping table
-        userMapping.userId = users.id;
-        userMapping.orgId = req.body.orgId;
-        userMapping.address = Address;
-        userMapping.state = State;
-        userMapping.country = Country;
-        userMapping.pincode = Pincode;
-        userMapping.coordinatorId = req.body.CoordinatorId;
-        userMapping.updatedBy = UserId;
-        userMapping.updatedOn = new Date();
-        if (RoleId === 5)
-          userMapping.supervisorId = req.body.SupervisorId;
-
-        await userMappingRepository.save(userMapping);
-      }
-      _output.data = await getConnection().query(`execute GetUserDetails 5,null,null,null,null,${Id}`);
-      _output.isSuccess = true;
-      _output.message = Id == 0 ? 'User created successfully' : 'Updated successfully';
     }
     catch (ex) {
       _output.isSuccess = false;

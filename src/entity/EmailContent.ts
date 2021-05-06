@@ -9,6 +9,6 @@ export class EmailContent {
   @Column("varchar", { name: "Category", length: 50 })
   category: string;
 
-  @Column("varchar", { name: "EmailContent", length: 500 })
+  @Column("varchar", { name: "EmailContent" })
   emailContent: string;
 }

@@ -74,7 +74,7 @@ class AuthController {
         mailOptions.bcc = 'saran@vecan.co; abraham@vecan.co;';
         mailOptions.subject = "Forgot Password";
         mailOptions.html = await (await emailRepository.findOne({ where: { id: 2 } })).emailContent.replace('@Name', users.firstName + ' ' + users.lastName)
-          .replace('@location', `https://globalassistadmin.padahjobs.com/resetpassword?email='${users.emailId}'&hash='${users.hashKey}'`);
+          .replace('@location', `https://globalassistadmin.padahjobs.com/#/resetpassword?email='${users.emailId}'&hash='${users.hashKey}'`);
         await EmailController.sendEmail(mailOptions);
         _output.isSuccess = true;
         _output.data = {};

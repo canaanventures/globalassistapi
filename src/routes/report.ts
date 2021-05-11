@@ -8,5 +8,6 @@ router.get("/getreports", ReportController.GetReports);
 
 router.post("/approvereport", ReportController.ApproveReports);
 
+router.get("/overallreport", ReportController.GetOverallReports);
 
 export default router;

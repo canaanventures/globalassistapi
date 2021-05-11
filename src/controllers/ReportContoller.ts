@@ -84,20 +84,13 @@ class ReportController {
         let application = await appRepository.findOne({ where: { id: ReportId } });
         try {
             let Query = ``;
-            if (RoleId == 2) {
-                application.sponserApproval = isApproved;
-                application.sponserRemarks = Remarks;
-                if (!isApproved)
-                    application.overallStatus = 'Rejected';
-                else
-                    application.overallStatus = 'Approved';
-                Query = `execute GetReportsDetails 5, null, null,${userId}, null, null, null`;
-            }
-            else if (RoleId == 3) {
+            if (RoleId == 3) {
                 application.coordinatorApproval = isApproved;
                 application.coordinatorRemarks = Remarks;
                 if (!isApproved)
                     application.overallStatus = 'Rejected';
+                else
+                    application.overallStatus = 'Approved';
                 Query = `execute GetReportsDetails 5, null, null,${userId}, null, null, null`;
             }
             else if (RoleId == 4) {
@@ -117,6 +110,22 @@ class ReportController {
             _output.isSuccess = false;
             _output.data = {};
             _output.message = 'Failed to do the process';
+        }
+        res.send(_output);
+    };
+
+    static GetOverallReports = async (req: Request, res: Response) => {
+        let _output = new Output();
+        try {
+            let Query = `execute GetOverallReports ${req.query.OperationId}, ${req.query.ReportId ? req.query.ReportId : 'null'},${req.query.CoordinatorId ? req.query.CoordinatorId : 'null'}, ${req.query.SupervisorId ? req.query.SupervisorId : 'null'}`;
+            _output.data = await getConnection().query(Query);
+            _output.isSuccess = true;
+            _output.message = 'Get Reports success';
+        }
+        catch (ex) {
+            _output.isSuccess = false;
+            _output.data = {};
+            _output.message = 'Get failed';
         }
         res.send(_output);
     };

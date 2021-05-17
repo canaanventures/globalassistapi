@@ -130,5 +130,33 @@ class ReportController {
         res.send(_output);
     };
 
+
+    static GetGraphData = async (req: Request, res: Response) => {
+        let _output = new Output();
+        try {
+            let date = new Date();
+            let data = await getConnection().query(`execute GetGraphData ${req.query.OperationId},${req.query.CoordinatorId ? req.query.CoordinatorId : 'null'}, ${req.query.SupervisorId ? req.query.SupervisorId : 'null'}`);
+            var months = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+            data.sort(function (a, b) {
+                return months.indexOf(a.Month)
+                    - months.indexOf(b.Month);
+            });
+            let Result = {
+                BarData: data.map(a => a.Counts),
+                ProgressData: await getConnection().query(`execute GetProgressData ${req.query.OperationId},${req.query.CoordinatorId ? req.query.CoordinatorId : 'null'}, ${req.query.SupervisorId ? req.query.SupervisorId : 'null'}, ${req.query.OrgId ? req.query.OrgId : 'null'}`)
+            }
+            _output.data = Result;
+            _output.isSuccess = true;
+            _output.message = 'Get Reports success';
+        }
+        catch (ex) {
+            _output.isSuccess = false;
+            _output.data = {};
+            _output.message = 'Get failed';
+        }
+        res.send(_output);
+    };
+
 }
 export default ReportController;

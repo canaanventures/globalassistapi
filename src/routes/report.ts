@@ -10,4 +10,6 @@ router.post("/approvereport", ReportController.ApproveReports);
 
 router.get("/overallreport", ReportController.GetOverallReports);
 
+router.get("/getgraphdata", ReportController.GetGraphData);
+
 export default router;

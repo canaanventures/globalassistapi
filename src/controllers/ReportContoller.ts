@@ -46,6 +46,7 @@ class ReportController {
             application.supervisorApproval = false;
             application.coordinatorApproval = false;
             application.updatedBy = UserId;
+            application.overallStatus = "Approval Pending";
             application.updatedOn = new Date();
 
             await appRepository.save(application);
